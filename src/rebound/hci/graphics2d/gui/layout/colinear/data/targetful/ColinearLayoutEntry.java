@@ -1,14 +1,14 @@
 package rebound.hci.graphics2d.gui.layout.colinear.data.targetful;
 
 import javax.annotation.Nullable;
-import rebound.annotations.semantic.SignalInterface;
+import rebound.annotations.semantic.SignalType;
 import rebound.hci.graphics2d.gui.layout.colinear.data.targetless.TargetlessColinearLayoutEntry;
 
 /**
  * Note that you can make this contain a target that could never be layed-out, like a {@link String} or something.
  * This is just pure data, so you can use it however you want! :D
  */
-@SignalInterface
+@SignalType
 public abstract class ColinearLayoutEntry
 {
 	protected final @Nullable Object target;

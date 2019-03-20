@@ -1,10 +1,10 @@
 package rebound.hci.graphics2d.gui.layout.colinear.data.targetless;
 
-import rebound.annotations.semantic.SignalInterface;
+import rebound.annotations.semantic.SignalType;
 import rebound.hci.graphics2d.gui.layout.colinear.data.targetful.ColinearLayoutEntry;
 import rebound.hci.graphics2d.gui.layout.colinear.data.targetful.FinalRemainderColinearLayoutEntry;
 
-@SignalInterface
+@SignalType
 public enum TargetlessFinalRemainderColinearLayoutEntry
 implements TargetlessColinearLayoutEntry
 {

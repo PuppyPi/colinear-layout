@@ -1,10 +1,10 @@
 package rebound.hci.graphics2d.gui.layout.colinear.data.targetful;
 
-import rebound.annotations.semantic.SignalInterface;
+import rebound.annotations.semantic.SignalType;
 import rebound.hci.graphics2d.gui.layout.colinear.data.targetless.TargetlessColinearLayoutEntry;
 import rebound.hci.graphics2d.gui.layout.colinear.data.targetless.TargetlessInitialRemainderProportionalAmountColinearLayoutEntry;
 
-@SignalInterface
+@SignalType
 public class InitialRemainderProportionalAmountColinearLayoutEntry
 extends ColinearLayoutEntry
 {

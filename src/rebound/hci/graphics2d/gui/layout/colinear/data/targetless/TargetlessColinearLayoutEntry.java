@@ -1,9 +1,9 @@
 package rebound.hci.graphics2d.gui.layout.colinear.data.targetless;
 
-import rebound.annotations.semantic.SignalInterface;
+import rebound.annotations.semantic.SignalType;
 import rebound.hci.graphics2d.gui.layout.colinear.data.targetful.ColinearLayoutEntry;
 
-@SignalInterface
+@SignalType
 public interface TargetlessColinearLayoutEntry
 {
 	public ColinearLayoutEntry withTarget(Object target);
