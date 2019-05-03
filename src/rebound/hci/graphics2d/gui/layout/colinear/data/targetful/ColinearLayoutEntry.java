@@ -1,6 +1,5 @@
 package rebound.hci.graphics2d.gui.layout.colinear.data.targetful;
 
-import static java.util.Objects.*;
 import javax.annotation.Nullable;
 import rebound.annotations.semantic.SignalType;
 import rebound.hci.graphics2d.gui.layout.colinear.data.targetless.TargetlessColinearLayoutEntry;
@@ -18,7 +17,7 @@ implements UnifiedColinearLayoutEntry
 	
 	public ColinearLayoutEntry(@Nullable final Object target)
 	{
-		this.target = requireNonNull(target);
+		this.target = target;
 	}
 	
 	@Nullable
