@@ -12,33 +12,47 @@ import rebound.util.functional.FunctionInterfaces.UnaryFunctionFloatToFloat;
 
 public class PerformColinearLayout
 {
-	public static float layout(final List<? extends UnifiedColinearLayoutEntry> layoutData, final float start, float size, final PerformOneTargetLayout actuallyLayout)
+	public static float layout(final List<? extends UnifiedColinearLayoutEntry> layoutData, float start, float size, final PerformOneTargetLayout actuallyLayout, @Nullable final UnaryFunctionFloatToFloat convertStartValue, @Nullable final UnaryFunctionFloatToFloat convertSizeValue)
 	{
-		if (size < 0 || !isFinite(size))
+		requireFinite(start);
+		requireFinite(size);
+		
+		if (size < 0)
 			size = 0;
 		
+		start = convertStartValue.f(start);
+		size = convertSizeValue.f(size);
 		
-		float remainder;
+		
+		float unfixedAmount;
 		{
 			float fixedTotal = 0;
 			{
 				for (final UnifiedColinearLayoutEntry c : layoutData)
 				{
 					if (c instanceof UnifiedFixedAmountColinearLayoutEntry)
-						fixedTotal += ((UnifiedFixedAmountColinearLayoutEntry)c).getAmount();
+						fixedTotal += convertSizeValue.f(((UnifiedFixedAmountColinearLayoutEntry)c).getAmount());
 				}
 			}
 			
-			remainder = size - fixedTotal;
+			unfixedAmount = size - fixedTotal;
 		}
 		
 		
-		float proportionTotal = 0;
+		
+		float remainder;
 		{
+			remainder = unfixedAmount;
+			
 			for (final UnifiedColinearLayoutEntry c : layoutData)
 			{
 				if (c instanceof UnifiedInitialRemainderProportionalAmountColinearLayoutEntry)
-					proportionTotal += ((UnifiedInitialRemainderProportionalAmountColinearLayoutEntry)c).getAmount();
+				{
+					final float proportion = ((UnifiedInitialRemainderProportionalAmountColinearLayoutEntry)c).getAmount();
+					final float requestedAmount = unfixedAmount * proportion;
+					final float actualAmount = convertSizeValue.f(requestedAmount);
+					remainder -= actualAmount;
+				}
 			}
 		}
 		
@@ -46,8 +60,8 @@ public class PerformColinearLayout
 		
 		//Actually lay out! :D
 		float cursor = start;
-		
 		int i = 0;
+		boolean hasRemainder = false;
 		for (final UnifiedColinearLayoutEntry c : layoutData)
 		{
 			final float requestedAmount;
@@ -61,37 +75,35 @@ public class PerformColinearLayout
 				else if (c instanceof UnifiedInitialRemainderProportionalAmountColinearLayoutEntry)
 				{
 					final float proportion = ((UnifiedInitialRemainderProportionalAmountColinearLayoutEntry)c).getAmount();
-					requestedAmount_ = remainder * proportion;
+					requestedAmount_ = unfixedAmount * proportion;
 				}
 				else if (c instanceof UnifiedFinalRemainderColinearLayoutEntry)
 				{
-					final float proportion = 1 - proportionTotal;
-					requestedAmount_ = remainder * proportion;
+					if (hasRemainder)
+						throw new IllegalStateException("More than one remainder!!");
+					else
+						hasRemainder = true;
+					
+					requestedAmount_ = remainder;
 				}
 				else
 				{
 					throw newClassCastExceptionOrNullPointerException(c);
 				}
 				
-				if (requestedAmount_ < 0 || !isFinite(requestedAmount_))
+				if (requestedAmount_ < 0)
 					requestedAmount = 0;
 				else
 					requestedAmount = requestedAmount_;
 			}
 			
-			
+			float actualStart = convertStartValue.f(cursor);
+			float actualSize = convertSizeValue.f(requestedAmount);
 			
 			//Actually lay *this* member out! :D
-			final float actualEnd;
-			{
-				final float thisStart = cursor;
-				final float thisSize = requestedAmount;
-				
-				actualEnd = actuallyLayout.layout(i, thisStart, thisSize);
-			}
+			actuallyLayout.layout(i, actualStart, actualSize);
 			
-			
-			cursor = actualEnd;
+			cursor = actualStart + actualSize;
 			i++;
 		}
 		
@@ -107,27 +119,22 @@ public class PerformColinearLayout
 	
 	
 	
-	public static LayoutResult layoutToMemory(final List<? extends UnifiedColinearLayoutEntry> layoutData, final float start, final float size, @Nullable final UnaryFunctionFloatToFloat startConverter, @Nullable final UnaryFunctionFloatToFloat sizeConverter)
+	public static LayoutResult layoutToMemory(final List<? extends UnifiedColinearLayoutEntry> layoutData, final float start, final float size, @Nullable final UnaryFunctionFloatToFloat convertStartValue, @Nullable final UnaryFunctionFloatToFloat convertSizeValue)
 	{
 		final int n = layoutData.size();
 		final float[] starts = new float[n];
 		final float[] sizes = new float[n];
 		
-		final float totalSize = layout(layoutData, start, size, new PerformOneTargetLayout()
+		final float totalEnd = layout(layoutData, start, size, new PerformOneTargetLayout()
 		{
 			@Override
-			public float layout(final int i, final float start, final float size)
+			public void layout(final int i, final float start, final float size)
 			{
-				final float actualStart = startConverter == null ? start : startConverter.f(start);
-				final float actualSize = sizeConverter == null ? size : sizeConverter.f(size);
-				
-				starts[i] = actualStart;
-				sizes[i] = actualSize;
-				
-				return actualStart + actualSize;
+				starts[i] = start;
+				sizes[i] = size;
 			}
-		});
+		}, convertStartValue, convertSizeValue);
 		
-		return new LayoutResult(starts, sizes, totalSize);
+		return new LayoutResult(starts, sizes, totalEnd);
 	}
 }

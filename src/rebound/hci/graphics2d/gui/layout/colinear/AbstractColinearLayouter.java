@@ -57,15 +57,20 @@ public abstract class AbstractColinearLayouter<TargetType>
 	
 	
 	
-	
+	/**
+	 * @return the final width/height after conversion (eg, rounding)
+	 */
 	public float[] layout(final float width, final float height)
 	{
 		return layout(0, 0, width, height);
 	}
 	
+	/**
+	 * @return the final x+width/y+height after conversion (eg, rounding)
+	 */
 	public float[] layout(final float x, final float y, final float width, final float height)
 	{
-		return layoutSomething(this.rootEntry, x, y, width, height);
+		return layoutSomething(this.rootEntry, convertX(x), convertY(y), convertWidth(width), convertHeight(height));
 	}
 	
 	
@@ -80,27 +85,28 @@ public abstract class AbstractColinearLayouter<TargetType>
 		final boolean isY = axis == Axis2D.YVertical;
 		
 		
-		final float actual = PerformColinearLayout.layout(a, isY ? y : x, isY ? height : width, new PerformOneTargetLayout()
+		final float actualEnd = PerformColinearLayout.layout(a, isY ? y : x, isY ? height : width, new PerformOneTargetLayout()
 		{
 			@Override
-			public float layout(final int i, final float start, final float size)
+			public void layout(final int i, final float start, final float size)
 			{
-				final float thisX = isY ? x : (x + start);
-				final float thisY = isY ? (y + start) : y;
+				final float thisX = isY ? x : start;
+				final float thisY = isY ? start : y;
 				final float thisWidth = isY ? width : size;
 				final float thisHeight = isY ? size : height;
 				
 				final ColinearLayoutEntry c = a.get(i);
 				final Object target = c.getTarget();
 				
-				final float[] r = layoutSomething(target, thisX, thisY, thisWidth, thisHeight);
-				
-				return isY ? r[1] : r[0];
+				layoutSomething(target, thisX, thisY, thisWidth, thisHeight);
 			}
-		});
+		},
+		isY ? this::convertY : this::convertX,
+		isY ? this::convertHeight : this::convertWidth
+		);
 		
 		
-		return isY ? new float[]{x+width, y+actual} : new float[]{x+actual, y+height};
+		return isY ? new float[]{x+width, actualEnd} : new float[]{actualEnd, y+height};
 	}
 	
 	
@@ -141,11 +147,6 @@ public abstract class AbstractColinearLayouter<TargetType>
 	
 	protected float[] layoutSomething(final Object target, float thisX, float thisY, float thisWidth, float thisHeight)
 	{
-		thisX = convertX(thisX);
-		thisY = convertY(thisY);
-		thisWidth = convertWidth(thisWidth);
-		thisHeight = convertHeight(thisHeight);
-		
 		if (target instanceof ColinearLayoutParent)
 		{
 			return layoutSingleAxis((ColinearLayoutParent)target, thisX, thisY, thisWidth, thisHeight);
