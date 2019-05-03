@@ -1,5 +1,6 @@
 package rebound.hci.graphics2d.gui.layout.colinear.data.targetful;
 
+import static rebound.math.SmallFloatMathUtilities.*;
 import rebound.annotations.semantic.SignalType;
 import rebound.hci.graphics2d.gui.layout.colinear.data.targetless.TargetlessColinearLayoutEntry;
 import rebound.hci.graphics2d.gui.layout.colinear.data.targetless.TargetlessFixedAmountColinearLayoutEntry;
@@ -15,7 +16,7 @@ implements UnifiedFixedAmountColinearLayoutEntry
 	public FixedAmountColinearLayoutEntry(final float amount, final Object target)
 	{
 		super(target);
-		this.amount = amount;
+		this.amount = requireFinite(amount);
 	}
 	
 	@Override

@@ -1,6 +1,7 @@
 package rebound.hci.graphics2d.gui.awt.layout.colinear;
 
 import static java.lang.Math.*;
+import static rebound.math.SmallFloatMathUtilities.*;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -33,19 +34,43 @@ implements LayoutManager
 	}
 	
 	@Override
-	protected float[] layoutLeafTarget(final @Nullable Object target, final float x, final float y, final float width, final float height)
+	protected void layoutLeafTarget(final @Nullable Object target, final float x, final float y, final float width, final float height)
 	{
-		final int widthInteger = round(width);
-		final int heightInteger = round(height);
+		final int xInteger = (int)x;
+		final int yInteger = (int)y;
+		final int widthInteger = (int)width;
+		final int heightInteger = (int)height;
 		
 		if (target != null)
 		{
 			final Component component = (Component) target;
-			component.setLocation(round(x), round(y));
+			component.setLocation(xInteger, yInteger);
 			component.setSize(widthInteger, heightInteger);
 		}
-		
-		return new float[]{widthInteger, heightInteger};
+	}
+	
+	@Override
+	protected float convertX(final float x)
+	{
+		return roundFloorS32(x);
+	}
+	
+	@Override
+	protected float convertY(final float y)
+	{
+		return roundFloorS32(y);
+	}
+	
+	@Override
+	protected float convertWidth(final float w)
+	{
+		return round(w);
+	}
+	
+	@Override
+	protected float convertHeight(final float h)
+	{
+		return round(h);
 	}
 	
 	

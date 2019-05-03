@@ -4,17 +4,20 @@ import java.util.List;
 import javax.annotation.Nullable;
 import rebound.hci.graphics2d.gui.layout.colinear.data.targetful.ColinearLayoutEntry;
 import rebound.hci.graphics2d.gui.layout.colinear.data.targetful.ColinearLayoutParent;
+import rebound.hci.graphics2d.gui.layout.colinear.data.targetful.ColinearTableLayoutParent;
+import rebound.hci.graphics2d.gui.layout.colinear.data.targetless.TargetlessColinearLayoutEntry;
 import rebound.math.geom2d.Direction2D.Axis2D;
+import rebound.util.collections.SimpleTable;
 
 public abstract class AbstractColinearLayouter<TargetType>
 {
-	//Todo support the X and Y not being what was requested!
-	/**
-	 * @return the actual width and height in case, for some reason they're not what was requested (eg, rounding to integers XD).   otherwise, just pass on through the given ones (null is interpreted to do this, for your convenience) :3
-	 */
-	@Nullable
-	protected abstract float[] layoutLeafTarget(@Nullable TargetType target, float x, float y, float width, float height);
+	protected abstract void layoutLeafTarget(@Nullable TargetType target, float x, float y, float width, float height);
 	
+	//These are eg, for rounding :>
+	protected float convertX(final float x) { return x; }
+	protected float convertY(final float y) { return y; }
+	protected float convertWidth(final float w) { return w; }
+	protected float convertHeight(final float h) { return h; }
 	
 	
 	
@@ -23,7 +26,7 @@ public abstract class AbstractColinearLayouter<TargetType>
 	{
 	}
 	
-	public AbstractColinearLayouter(final ColinearLayoutParent rootEntry)
+	public AbstractColinearLayouter(final Object rootEntry)
 	{
 		this.rootEntry = rootEntry;
 	}
@@ -33,9 +36,9 @@ public abstract class AbstractColinearLayouter<TargetType>
 	
 	
 	
-	protected @Nullable ColinearLayoutParent rootEntry;
+	protected @Nullable Object rootEntry;
 	
-	public ColinearLayoutParent getRootEntry()
+	public Object getRootEntry()
 	{
 		return this.rootEntry;
 	}
@@ -43,7 +46,7 @@ public abstract class AbstractColinearLayouter<TargetType>
 	/**
 	 * Calling this does NOT automatically re-layout the contents!!  You have to call {@link #layout(float, float)} if appropriate!
 	 */
-	public void setRootEntry(final ColinearLayoutParent rootEntry)
+	public void setRootEntry(final Object rootEntry)
 	{
 		this.rootEntry = rootEntry;
 	}
@@ -60,22 +63,17 @@ public abstract class AbstractColinearLayouter<TargetType>
 	
 	public float[] layout(final float x, final float y, final float width, final float height)
 	{
-		final ColinearLayoutParent r = this.rootEntry;
-		
-		if (r != null)
-			return layoutSingle(r, x, y, width, height);
-		else
-			return new float[]{width, height};
+		return layoutSomething(this.rootEntry, x, y, width, height);
 	}
 	
 	
 	
 	
 	
-	protected float[] layoutSingle(final ColinearLayoutParent array, final float x, final float y, final float width, final float height)
+	protected float[] layoutSingle(final ColinearLayoutParent layout, final float x, final float y, final float width, final float height)
 	{
-		final Axis2D axis = array.getAxis();
-		final List<ColinearLayoutEntry> a = array.getEntries();
+		final Axis2D axis = layout.getAxis();
+		final List<ColinearLayoutEntry> a = layout.getEntries();
 		
 		final boolean isY = axis == Axis2D.YVertical;
 		
@@ -93,25 +91,71 @@ public abstract class AbstractColinearLayouter<TargetType>
 				final ColinearLayoutEntry c = a.get(i);
 				final Object target = c.getTarget();
 				
-				float[] dims;
+				final float[] r = layoutSomething(target, thisX, thisY, thisWidth, thisHeight);
 				
-				if (target instanceof ColinearLayoutParent)
-				{
-					dims = layoutSingle((ColinearLayoutParent)target, thisX, thisY, thisWidth, thisHeight);
-				}
-				else
-				{
-					dims = layoutLeafTarget((TargetType)target, thisX, thisY, thisWidth, thisHeight);
-					
-					if (dims == null)
-						dims = new float[]{thisWidth, thisHeight};
-				}
-				
-				return isY ? dims[1] : dims[0];
+				return isY ? r[1] : r[0];
 			}
 		});
 		
 		
-		return isY ? new float[]{width, actual} : new float[]{actual, height};
+		return isY ? new float[]{x+width, y+actual} : new float[]{x+actual, y+height};
+	}
+	
+	
+	
+	
+	protected float[] layoutTable(final ColinearTableLayoutParent layout, final float x, final float y, final float width, final float height)
+	{
+		final List<TargetlessColinearLayoutEntry> layoutsForColumns = layout.getColumnLayouts();
+		final List<TargetlessColinearLayoutEntry> layoutsForRows = layout.getRowLayouts();
+		final SimpleTable<Object> targets = layout.getTargets();
+		
+		final LayoutResult columns = PerformColinearLayout.layoutToMemory(layoutsForColumns, x, width, this::convertX, this::convertWidth);
+		final LayoutResult rows = PerformColinearLayout.layoutToMemory(layoutsForRows, y, height, this::convertY, this::convertHeight);
+		
+		
+		final int w = targets.getNumberOfColumns();
+		final int h = targets.getNumberOfRows();
+		
+		for (int r = 0; r < h; r++)
+		{
+			final float ry = rows.getStarts()[r];
+			final float rh = rows.getSizes()[r];
+			
+			for (int c = 0; c < w; c++)
+			{
+				final float cx = columns.getStarts()[c];
+				final float cw = columns.getSizes()[c];
+				
+				final Object target = targets.getCellContents(c, r);
+				layoutSomething(target, cx, ry, cw, rh);
+			}
+		}
+		
+		return new float[]{columns.getEnd(), rows.getEnd()};
+	}
+	
+	
+	
+	protected float[] layoutSomething(final Object target, float thisX, float thisY, float thisWidth, float thisHeight)
+	{
+		thisX = convertX(thisX);
+		thisY = convertY(thisY);
+		thisWidth = convertWidth(thisWidth);
+		thisHeight = convertHeight(thisHeight);
+		
+		if (target instanceof ColinearLayoutParent)
+		{
+			return layoutSingle((ColinearLayoutParent)target, thisX, thisY, thisWidth, thisHeight);
+		}
+		else if (target instanceof ColinearTableLayoutParent)
+		{
+			return layoutTable((ColinearTableLayoutParent)target, thisX, thisY, thisWidth, thisHeight);
+		}
+		else
+		{
+			layoutLeafTarget((TargetType)target, thisX, thisY, thisWidth, thisHeight);
+			return new float[]{thisX + thisWidth, thisY + thisHeight};
+		}
 	}
 }

@@ -3,10 +3,12 @@ package rebound.hci.graphics2d.gui.layout.colinear;
 import static rebound.math.SmallFloatMathUtilities.*;
 import static rebound.util.BasicExceptionUtilities.*;
 import java.util.List;
+import javax.annotation.Nullable;
 import rebound.hci.graphics2d.gui.layout.colinear.data.unified.UnifiedColinearLayoutEntry;
 import rebound.hci.graphics2d.gui.layout.colinear.data.unified.UnifiedFinalRemainderColinearLayoutEntry;
 import rebound.hci.graphics2d.gui.layout.colinear.data.unified.UnifiedFixedAmountColinearLayoutEntry;
 import rebound.hci.graphics2d.gui.layout.colinear.data.unified.UnifiedInitialRemainderProportionalAmountColinearLayoutEntry;
+import rebound.util.functional.FunctionInterfaces.UnaryFunctionFloatToFloat;
 
 public class PerformColinearLayout
 {
@@ -43,7 +45,7 @@ public class PerformColinearLayout
 		
 		
 		//Actually lay out! :D
-		float cursor = 0;
+		float cursor = start;
 		
 		int i = 0;
 		for (final UnifiedColinearLayoutEntry c : layoutData)
@@ -80,20 +82,52 @@ public class PerformColinearLayout
 			
 			
 			//Actually lay *this* member out! :D
-			final float actualAmount;
+			final float actualEnd;
 			{
-				final float thisStart = start + cursor;
+				final float thisStart = cursor;
 				final float thisSize = requestedAmount;
 				
-				actualAmount = actuallyLayout.layout(i, thisStart, thisSize);
+				actualEnd = actuallyLayout.layout(i, thisStart, thisSize);
 			}
 			
 			
-			cursor += actualAmount;
+			cursor = actualEnd;
 			i++;
 		}
 		
 		
 		return cursor;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	public static LayoutResult layoutToMemory(final List<? extends UnifiedColinearLayoutEntry> layoutData, final float start, final float size, @Nullable final UnaryFunctionFloatToFloat startConverter, @Nullable final UnaryFunctionFloatToFloat sizeConverter)
+	{
+		final int n = layoutData.size();
+		final float[] starts = new float[n];
+		final float[] sizes = new float[n];
+		
+		final float totalSize = layout(layoutData, start, size, new PerformOneTargetLayout()
+		{
+			@Override
+			public float layout(final int i, final float start, final float size)
+			{
+				final float actualStart = startConverter == null ? start : startConverter.f(start);
+				final float actualSize = sizeConverter == null ? size : sizeConverter.f(size);
+				
+				starts[i] = actualStart;
+				sizes[i] = actualSize;
+				
+				return actualStart + actualSize;
+			}
+		});
+		
+		return new LayoutResult(starts, sizes, totalSize);
 	}
 }

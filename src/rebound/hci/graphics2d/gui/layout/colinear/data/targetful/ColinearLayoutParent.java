@@ -1,5 +1,6 @@
 package rebound.hci.graphics2d.gui.layout.colinear.data.targetful;
 
+import static java.util.Objects.*;
 import java.util.List;
 import javax.annotation.Nonnull;
 import rebound.hci.graphics2d.gui.layout.colinear.data.unified.UnifiedColinearLayoutParent;
@@ -13,8 +14,8 @@ implements UnifiedColinearLayoutParent
 	
 	public ColinearLayoutParent(final @Nonnull Axis2D axis, final @Nonnull List<ColinearLayoutEntry> entries)
 	{
-		this.axis = axis;
-		this.entries = entries;
+		this.axis = requireNonNull(axis);
+		this.entries = requireNonNull(entries);
 	}
 	
 	@Override

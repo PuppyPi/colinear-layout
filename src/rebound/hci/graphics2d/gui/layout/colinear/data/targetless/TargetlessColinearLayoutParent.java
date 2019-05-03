@@ -1,5 +1,6 @@
 package rebound.hci.graphics2d.gui.layout.colinear.data.targetless;
 
+import static java.util.Objects.*;
 import java.util.List;
 import rebound.hci.graphics2d.gui.layout.colinear.data.unified.UnifiedColinearLayoutParent;
 import rebound.math.geom2d.Direction2D.Axis2D;
@@ -12,8 +13,8 @@ implements UnifiedColinearLayoutParent
 	
 	public TargetlessColinearLayoutParent(final Axis2D axis, final List<TargetlessColinearLayoutEntry> entries)
 	{
-		this.axis = axis;
-		this.entries = entries;
+		this.axis = requireNonNull(axis);
+		this.entries = requireNonNull(entries);
 	}
 	
 	@Override
