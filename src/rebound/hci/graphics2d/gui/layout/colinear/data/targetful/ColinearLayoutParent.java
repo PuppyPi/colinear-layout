@@ -1,25 +1,30 @@
 package rebound.hci.graphics2d.gui.layout.colinear.data.targetful;
 
+import java.util.List;
 import javax.annotation.Nonnull;
+import rebound.hci.graphics2d.gui.layout.colinear.data.unified.UnifiedColinearLayoutParent;
 import rebound.math.geom2d.Direction2D.Axis2D;
 
 public class ColinearLayoutParent
+implements UnifiedColinearLayoutParent
 {
 	protected final Axis2D axis;
-	protected final Iterable<ColinearLayoutEntry> entries;
+	protected final List<ColinearLayoutEntry> entries;
 	
-	public ColinearLayoutParent(final @Nonnull Axis2D axis, final @Nonnull Iterable<ColinearLayoutEntry> entries)
+	public ColinearLayoutParent(final @Nonnull Axis2D axis, final @Nonnull List<ColinearLayoutEntry> entries)
 	{
 		this.axis = axis;
 		this.entries = entries;
 	}
 	
+	@Override
 	public Axis2D getAxis()
 	{
 		return this.axis;
 	}
 	
-	public Iterable<ColinearLayoutEntry> getEntries()
+	@Override
+	public List<ColinearLayoutEntry> getEntries()
 	{
 		return this.entries;
 	}

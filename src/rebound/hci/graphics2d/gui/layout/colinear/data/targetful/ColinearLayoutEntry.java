@@ -3,6 +3,7 @@ package rebound.hci.graphics2d.gui.layout.colinear.data.targetful;
 import javax.annotation.Nullable;
 import rebound.annotations.semantic.SignalType;
 import rebound.hci.graphics2d.gui.layout.colinear.data.targetless.TargetlessColinearLayoutEntry;
+import rebound.hci.graphics2d.gui.layout.colinear.data.unified.UnifiedColinearLayoutEntry;
 
 /**
  * Note that you can make this contain a target that could never be layed-out, like a {@link String} or something.
@@ -10,6 +11,7 @@ import rebound.hci.graphics2d.gui.layout.colinear.data.targetless.TargetlessColi
  */
 @SignalType
 public abstract class ColinearLayoutEntry
+implements UnifiedColinearLayoutEntry
 {
 	protected final @Nullable Object target;
 	

@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.LayoutManager;
+import javax.annotation.Nullable;
 import rebound.hci.graphics2d.gui.layout.colinear.AbstractColinearLayouter;
 import rebound.hci.graphics2d.gui.layout.colinear.data.targetful.ColinearLayoutParent;
 
@@ -32,15 +33,17 @@ implements LayoutManager
 	}
 	
 	@Override
-	protected float[] layoutLeafTarget(final Object target, final float x, final float y, final float width, final float height)
+	protected float[] layoutLeafTarget(final @Nullable Object target, final float x, final float y, final float width, final float height)
 	{
-		final Component component = (Component) target;
-		
 		final int widthInteger = round(width);
 		final int heightInteger = round(height);
 		
-		component.setLocation(round(x), round(y));
-		component.setSize(widthInteger, heightInteger);
+		if (target != null)
+		{
+			final Component component = (Component) target;
+			component.setLocation(round(x), round(y));
+			component.setSize(widthInteger, heightInteger);
+		}
 		
 		return new float[]{widthInteger, heightInteger};
 	}

@@ -1,13 +1,9 @@
 package rebound.hci.graphics2d.gui.layout.colinear;
 
-import javax.annotation.Nonnull;
+import java.util.List;
 import javax.annotation.Nullable;
-import rebound.exceptions.StructuredClassCastException;
 import rebound.hci.graphics2d.gui.layout.colinear.data.targetful.ColinearLayoutEntry;
 import rebound.hci.graphics2d.gui.layout.colinear.data.targetful.ColinearLayoutParent;
-import rebound.hci.graphics2d.gui.layout.colinear.data.targetful.FinalRemainderColinearLayoutEntry;
-import rebound.hci.graphics2d.gui.layout.colinear.data.targetful.FixedAmountColinearLayoutEntry;
-import rebound.hci.graphics2d.gui.layout.colinear.data.targetful.InitialRemainderProportionalAmountColinearLayoutEntry;
 import rebound.math.geom2d.Direction2D.Axis2D;
 
 public abstract class AbstractColinearLayouter<TargetType>
@@ -16,8 +12,8 @@ public abstract class AbstractColinearLayouter<TargetType>
 	/**
 	 * @return the actual width and height in case, for some reason they're not what was requested (eg, rounding to integers XD).   otherwise, just pass on through the given ones (null is interpreted to do this, for your convenience) :3
 	 */
-	@Nullable  //for default behavior :3
-	protected abstract float[] layoutLeafTarget(@Nonnull TargetType target, float x, float y, float width, float height);
+	@Nullable
+	protected abstract float[] layoutLeafTarget(@Nullable TargetType target, float x, float y, float width, float height);
 	
 	
 	
@@ -74,144 +70,48 @@ public abstract class AbstractColinearLayouter<TargetType>
 	
 	
 	
-	protected float[] layoutSingle(final ColinearLayoutParent array, final float x, final float y, float width, float height)
+	
+	
+	protected float[] layoutSingle(final ColinearLayoutParent array, final float x, final float y, final float width, final float height)
 	{
-		if (width < 0 || !isFinite(width))
-			width = 0;
-		
-		if (height < 0 || !isFinite(height))
-			height = 0;
-		
-		
-		
 		final Axis2D axis = array.getAxis();
-		final Iterable<ColinearLayoutEntry> a = array.getEntries();
+		final List<ColinearLayoutEntry> a = array.getEntries();
 		
 		final boolean isY = axis == Axis2D.YVertical;
 		
-		final float totalAvailable = isY ? height : width;
 		
-		
-		
-		float remainder;
+		final float actual = PerformColinearLayout.layout(a, isY ? y : x, isY ? height : width, new PerformOneTargetLayout()
 		{
-			float fixedTotal = 0;
+			@Override
+			public float layout(final int i, final float start, final float size)
 			{
-				for (final ColinearLayoutEntry c : a)
+				final float thisX = isY ? x : (x + start);
+				final float thisY = isY ? (y + start) : y;
+				final float thisWidth = isY ? width : size;
+				final float thisHeight = isY ? size : height;
+				
+				final ColinearLayoutEntry c = a.get(i);
+				final Object target = c.getTarget();
+				
+				float[] dims;
+				
+				if (target instanceof ColinearLayoutParent)
 				{
-					if (c instanceof FixedAmountColinearLayoutEntry)
-						fixedTotal += ((FixedAmountColinearLayoutEntry)c).getAmount();
-				}
-			}
-			
-			remainder = totalAvailable - fixedTotal;
-		}
-		
-		
-		float proportionTotal = 0;
-		{
-			for (final ColinearLayoutEntry c : a)
-			{
-				if (c instanceof InitialRemainderProportionalAmountColinearLayoutEntry)
-					proportionTotal += ((InitialRemainderProportionalAmountColinearLayoutEntry)c).getAmount();
-			}
-		}
-		
-		
-		
-		//Actually lay out! :D
-		float cursor = 0;
-		
-		for (final ColinearLayoutEntry c : a)
-		{
-			float actualAmount;
-			{
-				if (c instanceof FixedAmountColinearLayoutEntry)
-				{
-					actualAmount = ((FixedAmountColinearLayoutEntry)c).getAmount();
-				}
-				else if (c instanceof InitialRemainderProportionalAmountColinearLayoutEntry)
-				{
-					final float proportion = ((InitialRemainderProportionalAmountColinearLayoutEntry)c).getAmount();
-					actualAmount = remainder * proportion;
-				}
-				else if (c instanceof FinalRemainderColinearLayoutEntry)
-				{
-					final float proportion = 1 - proportionTotal;
-					actualAmount = remainder * proportion;
+					dims = layoutSingle((ColinearLayoutParent)target, thisX, thisY, thisWidth, thisHeight);
 				}
 				else
 				{
-					throw newClassCastExceptionOrNullPointerException(c);
-				}
-			}
-			
-			if (actualAmount < 0 || !isFinite(actualAmount))
-				actualAmount = 0;
-			
-			
-			
-			//Actually lay *this* member out! :D
-			{
-				final float thisX = isY ? x : (x + cursor);
-				final float thisY = isY ? (y + cursor) : y;
-				final float thisWidth = isY ? width : actualAmount;
-				final float thisHeight = isY ? actualAmount : height;
-				
-				final Object target = c.getTarget();
-				
-				if (target != null)  //null means padding/margin/empty! :D
-				{
-					float[] dims;
+					dims = layoutLeafTarget((TargetType)target, thisX, thisY, thisWidth, thisHeight);
 					
-					if (target instanceof ColinearLayoutParent)
-					{
-						dims = layoutSingle((ColinearLayoutParent)target, thisX, thisY, thisWidth, thisHeight);
-					}
-					else
-					{
-						dims = layoutLeafTarget((TargetType)target, thisX, thisY, thisWidth, thisHeight);
-						
-						if (dims == null)
-							dims = new float[]{thisWidth, thisHeight};
-					}
-					
-					actualAmount = isY ? dims[1] : dims[0];
+					if (dims == null)
+						dims = new float[]{thisWidth, thisHeight};
 				}
+				
+				return isY ? dims[1] : dims[0];
 			}
-			
-			
-			cursor += actualAmount;
-		}
+		});
 		
 		
-		
-		return isY ? new float[]{width, cursor} : new float[]{cursor, height};
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	//RCINLINE//
-	private static boolean isFinite(final float x)
-	{
-		return !(Float.isInfinite(x) || isNaN(x));
-	}
-	
-	private static boolean isNaN(final float x)
-	{
-		return x != x;
-	}
-	
-	private static RuntimeException newClassCastExceptionOrNullPointerException(final Object o)
-	{
-		if (o == null)
-			return new NullPointerException();
-		else
-			return new StructuredClassCastException(o.getClass());
+		return isY ? new float[]{width, actual} : new float[]{actual, height};
 	}
 }

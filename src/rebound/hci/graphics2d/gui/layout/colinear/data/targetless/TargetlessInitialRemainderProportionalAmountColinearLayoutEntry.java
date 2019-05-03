@@ -3,10 +3,11 @@ package rebound.hci.graphics2d.gui.layout.colinear.data.targetless;
 import rebound.annotations.semantic.SignalType;
 import rebound.hci.graphics2d.gui.layout.colinear.data.targetful.ColinearLayoutEntry;
 import rebound.hci.graphics2d.gui.layout.colinear.data.targetful.InitialRemainderProportionalAmountColinearLayoutEntry;
+import rebound.hci.graphics2d.gui.layout.colinear.data.unified.UnifiedInitialRemainderProportionalAmountColinearLayoutEntry;
 
 @SignalType
 public class TargetlessInitialRemainderProportionalAmountColinearLayoutEntry
-implements TargetlessColinearLayoutEntry
+implements TargetlessColinearLayoutEntry, UnifiedInitialRemainderProportionalAmountColinearLayoutEntry
 {
 	protected final float amount;
 	
@@ -15,6 +16,7 @@ implements TargetlessColinearLayoutEntry
 		this.amount = amount;
 	}
 	
+	@Override
 	public float getAmount()
 	{
 		return this.amount;

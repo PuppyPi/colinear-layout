@@ -1,24 +1,29 @@
 package rebound.hci.graphics2d.gui.layout.colinear.data.targetless;
 
+import java.util.List;
+import rebound.hci.graphics2d.gui.layout.colinear.data.unified.UnifiedColinearLayoutParent;
 import rebound.math.geom2d.Direction2D.Axis2D;
 
 public class TargetlessColinearLayoutParent
+implements UnifiedColinearLayoutParent
 {
 	protected final Axis2D axis;
-	protected final Iterable<TargetlessColinearLayoutEntry> entries;
+	protected final List<TargetlessColinearLayoutEntry> entries;
 	
-	public TargetlessColinearLayoutParent(final Axis2D axis, final Iterable<TargetlessColinearLayoutEntry> entries)
+	public TargetlessColinearLayoutParent(final Axis2D axis, final List<TargetlessColinearLayoutEntry> entries)
 	{
 		this.axis = axis;
 		this.entries = entries;
 	}
 	
+	@Override
 	public Axis2D getAxis()
 	{
 		return this.axis;
 	}
 	
-	public Iterable<TargetlessColinearLayoutEntry> getEntries()
+	@Override
+	public List<TargetlessColinearLayoutEntry> getEntries()
 	{
 		return this.entries;
 	}

@@ -3,10 +3,12 @@ package rebound.hci.graphics2d.gui.layout.colinear.data.targetful;
 import rebound.annotations.semantic.SignalType;
 import rebound.hci.graphics2d.gui.layout.colinear.data.targetless.TargetlessColinearLayoutEntry;
 import rebound.hci.graphics2d.gui.layout.colinear.data.targetless.TargetlessFinalRemainderColinearLayoutEntry;
+import rebound.hci.graphics2d.gui.layout.colinear.data.unified.UnifiedFinalRemainderColinearLayoutEntry;
 
 @SignalType
 public class FinalRemainderColinearLayoutEntry
 extends ColinearLayoutEntry
+implements UnifiedFinalRemainderColinearLayoutEntry
 {
 	public FinalRemainderColinearLayoutEntry(final Object target)
 	{

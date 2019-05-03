@@ -1,6 +1,7 @@
 package rebound.hci.graphics2d.gui.layout.colinear;
 
 import java.util.Arrays;
+import java.util.List;
 import rebound.hci.graphics2d.gui.layout.colinear.data.targetful.ColinearLayoutEntry;
 import rebound.hci.graphics2d.gui.layout.colinear.data.targetful.ColinearLayoutParent;
 import rebound.hci.graphics2d.gui.layout.colinear.data.targetful.FinalRemainderColinearLayoutEntry;
@@ -20,7 +21,7 @@ import rebound.math.geom2d.Direction2D.Axis2D;
  */
 public class ColinearLayout
 {
-	public static ColinearLayoutParent clepC(final Axis2D axis, final Iterable<ColinearLayoutEntry> subentries)
+	public static ColinearLayoutParent clepC(final Axis2D axis, final List<ColinearLayoutEntry> subentries)
 	{
 		return new ColinearLayoutParent(axis, subentries);
 	}
@@ -53,7 +54,7 @@ public class ColinearLayout
 	
 	
 	
-	public static TargetlessColinearLayoutParent clxp(final Axis2D axis, final Iterable<TargetlessColinearLayoutEntry> subentries)
+	public static TargetlessColinearLayoutParent clxp(final Axis2D axis, final List<TargetlessColinearLayoutEntry> subentries)
 	{
 		return new TargetlessColinearLayoutParent(axis, subentries);
 	}
