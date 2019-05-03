@@ -22,6 +22,8 @@ public abstract class AbstractColinearLayouter<TargetType>
 	
 	
 	
+	
+	
 	public AbstractColinearLayouter()
 	{
 	}
@@ -70,7 +72,7 @@ public abstract class AbstractColinearLayouter<TargetType>
 	
 	
 	
-	protected float[] layoutSingle(final ColinearLayoutParent layout, final float x, final float y, final float width, final float height)
+	protected float[] layoutSingleAxis(final ColinearLayoutParent layout, final float x, final float y, final float width, final float height)
 	{
 		final Axis2D axis = layout.getAxis();
 		final List<ColinearLayoutEntry> a = layout.getEntries();
@@ -146,7 +148,7 @@ public abstract class AbstractColinearLayouter<TargetType>
 		
 		if (target instanceof ColinearLayoutParent)
 		{
-			return layoutSingle((ColinearLayoutParent)target, thisX, thisY, thisWidth, thisHeight);
+			return layoutSingleAxis((ColinearLayoutParent)target, thisX, thisY, thisWidth, thisHeight);
 		}
 		else if (target instanceof ColinearTableLayoutParent)
 		{
