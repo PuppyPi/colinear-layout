@@ -19,10 +19,12 @@ implements LayoutManager
 		super();
 	}
 	
-	public ColinearAwtLayoutManager(final ColinearLayoutParent rootEntry)
+	public ColinearAwtLayoutManager(Object rootEntry)
 	{
 		super(rootEntry);
 	}
+	
+	
 	
 	
 	
