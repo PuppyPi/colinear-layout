@@ -97,8 +97,8 @@ public class PerformColinearLayout
 					requestedAmount = requestedAmount_;
 			}
 			
-			float actualStart = convertStartValue.f(cursor);
-			float actualSize = convertSizeValue.f(requestedAmount);
+			final float actualStart = convertStartValue.f(cursor);
+			final float actualSize = convertSizeValue.f(requestedAmount);
 			
 			//Actually lay *this* member out! :D
 			actuallyLayout.layout(i, actualStart, actualSize);

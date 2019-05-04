@@ -8,7 +8,6 @@ import java.awt.Dimension;
 import java.awt.LayoutManager;
 import javax.annotation.Nullable;
 import rebound.hci.graphics2d.gui.layout.colinear.AbstractColinearLayouter;
-import rebound.hci.graphics2d.gui.layout.colinear.data.targetful.ColinearLayoutParent;
 
 public class ColinearAwtLayoutManager
 extends AbstractColinearLayouter
@@ -19,7 +18,7 @@ implements LayoutManager
 		super();
 	}
 	
-	public ColinearAwtLayoutManager(Object rootEntry)
+	public ColinearAwtLayoutManager(final Object rootEntry)
 	{
 		super(rootEntry);
 	}

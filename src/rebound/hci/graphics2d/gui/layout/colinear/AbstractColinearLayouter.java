@@ -145,7 +145,7 @@ public abstract class AbstractColinearLayouter<TargetType>
 	
 	
 	
-	protected float[] layoutSomething(final Object target, float thisX, float thisY, float thisWidth, float thisHeight)
+	protected float[] layoutSomething(final Object target, final float thisX, final float thisY, final float thisWidth, final float thisHeight)
 	{
 		if (target instanceof ColinearLayoutParent)
 		{
