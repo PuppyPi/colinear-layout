@@ -17,7 +17,6 @@ implements UnifiedInitialRemainderProportionalAmountColinearLayoutEntry
 	{
 		super(target);
 		this.amount = requireFinite(amount);
-		requireFinite(amount);
 	}
 	
 	@Override
