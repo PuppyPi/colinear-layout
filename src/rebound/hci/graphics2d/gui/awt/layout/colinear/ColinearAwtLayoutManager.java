@@ -8,6 +8,8 @@ import java.awt.Dimension;
 import java.awt.LayoutManager;
 import javax.annotation.Nullable;
 import rebound.hci.graphics2d.gui.layout.colinear.AbstractColinearLayouter;
+import rebound.hci.graphics2d.gui.layout.colinear.FloatLayoutable;
+import rebound.hci.graphics2d.gui.layout.colinear.IntegerLayoutable;
 
 public class ColinearAwtLayoutManager
 extends AbstractColinearLayouter
@@ -37,16 +39,30 @@ implements LayoutManager
 	@Override
 	protected void layoutLeafTarget(final @Nullable Object target, final float x, final float y, final float width, final float height)
 	{
-		final int xInteger = (int)x;
-		final int yInteger = (int)y;
-		final int widthInteger = (int)width;
-		final int heightInteger = (int)height;
-		
 		if (target != null)
 		{
-			final Component component = (Component) target;
-			component.setLocation(xInteger, yInteger);
-			component.setSize(widthInteger, heightInteger);
+			if (target instanceof FloatLayoutable)
+			{
+				((FloatLayoutable) target).layout(x, y, width, height);
+			}
+			else
+			{
+				final int xInteger = (int)x;
+				final int yInteger = (int)y;
+				final int widthInteger = (int)width;
+				final int heightInteger = (int)height;
+				
+				if (target instanceof IntegerLayoutable)
+				{
+					((IntegerLayoutable) target).layout(xInteger, yInteger, widthInteger, heightInteger);
+				}
+				else
+				{
+					final Component component = (Component) target;
+					component.setLocation(xInteger, yInteger);
+					component.setSize(widthInteger, heightInteger);
+				}
+			}
 		}
 	}
 	
