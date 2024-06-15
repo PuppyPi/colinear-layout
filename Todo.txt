@@ -1,0 +1,1 @@
+• Consider using doubles not floats before it gets widely used!!
